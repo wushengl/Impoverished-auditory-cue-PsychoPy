@@ -1,0 +1,23 @@
+https://github.com/cbrown1/medussa/blob/master/INSTALL.md
+
+Problem: cannot find numpy
+
+	- when running setup.py build, can find numpy, but when running sudo setup.py install, 		it cannot find
+
+solution: 
+	not a problem of setup.py, problem of sudo!!
+
+
+
+why sudo install is different from install?
+
+
+when running code, another error:
+
+	OSError: libportaudio.so.2: cannot open shared object file: No such file or directory
+
+
+solution:
+
+	https://itsfoss.com/solve-open-shared-object-file-quick-tip/
+

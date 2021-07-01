@@ -1,0 +1,8 @@
+TODO:
+
+1. check device (sound card etc)
+2. run main.py 
+3. make a document about what to modify before running in Chris' lab
+
+
+

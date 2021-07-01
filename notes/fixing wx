@@ -1,0 +1,8 @@
+1. apt-get might install wx to some weird place and python still cannot find it. Use this url:
+
+	https://wxpython.org/pages/downloads/index.html
+
+
+2. And there might be something missing, like libpng12-0 or something, don't panic, just install them.
+
+	https://www.linuxuprising.com/2018/05/fix-libpng12-0-missing-in-ubuntu-1804.html

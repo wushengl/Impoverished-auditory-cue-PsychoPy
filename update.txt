@@ -1,0 +1,4 @@
+1. updated stimuli
+2. added 3 spatialization conditions 
+3. changed interrupted ratio
+4. checked trial number and other stuff
