@@ -13,6 +13,9 @@ TODO:
 - 2. add session screen in main (line 170)
 - 3. check maketrialdictlist (160 blocks ok? 80 normal, 40 left leading)
 [pilot by myself]
-4. how to test with less trials?
+- 4. how to test with less trials?
 5. check saved data, is that readable? do i need to make it easier to process?
-6. add more processing in this code? correct or not, errors?
+	- what is tsv?
+	- what is psydat?
+	- how to read them? is that enough?
+6. update trigger code + channel 3
