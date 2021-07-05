@@ -125,3 +125,13 @@ def start_block(win,blocki):
     txt.draw()
     win.flip()
     event.waitKeys(keyList=['space'])
+
+def end_task(win):
+
+    txt = 'You have finished the task! Thank you for your participation! \n\n'\
+        'Press Space to continue.'
+
+    txt = visual.TextStim(win, text=txt)
+    txt.draw()
+    win.flip()
+    event.waitKeys(keyList=['space'])

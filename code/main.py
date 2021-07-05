@@ -41,12 +41,12 @@ spatialization = ['all','HRTF','ITD','ILD']
 
 
 ratio = 1/2
-trialNum = 480
-blockNum = 12
+trialNum = 480 # 480 # test with 12,12,4
+blockNum = 12 
 taskBlockLen = int(trialNum/blockNum)
-taskSessionLen = 160 # 480/3
+taskSessionLen = 160 # 480/3 = 160
 
-expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=480,blockNum=10)
+expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=trialNum,blockNum=blockNum)
 expDataFile = '../data/ASAExp_' + expInfo['Subject'] + '/ASAExp_' + expInfo['Subject']
 trainDataFile = expDataFile + '_train'
 taskDataFile = expDataFile + '_task'
@@ -56,12 +56,12 @@ trialNum = expInfo['Trial Number']
 intCond = expInfo['Condition']
 spaCond = expInfo['Spatialization']
 
-trainNum = 6 
+trainNum = 6
 trainThre = 4
 
 
 '''
-# TODO: do we still want to use serial port?
+# do we still want to use serial port?
 port_list = list(serial.tools.list_ports.comports())
 
 if len(port_list) <= 0:
@@ -136,9 +136,6 @@ training.saveAsPickle(fileName=trainDataFile)
 # task session 
 #####################################################
 
-# TODO:
-# 1. add a new instruction, have 3 sessions, each have 4 blocks, each 40 trials
-# 2. if spacondition = all, make trial dict list 3 times, each with different 
 
 expInstructions.task_Instruction_3spa(win,trialNum,taskBlockLen)
 
@@ -146,6 +143,9 @@ expInstructions.task_Instruction_3spa(win,trialNum,taskBlockLen)
 if spaCond == 'all':
     spaCond_list = ['HRTF','ITD','ILD']
     trialNum_cond = int(trialNum/len(spaCond_list))
+
+    ti = 0
+    corrCount = 0
 
     for s in spaCond_list:
 
@@ -156,8 +156,7 @@ if spaCond == 'all':
 
         # trial handler
 
-        ti = 0
-        corrCount = 0
+        #print(taskConds)
 
         for taskCond in tasks: 
 
@@ -171,7 +170,8 @@ if spaCond == 'all':
 
             ti += 1
             total = tasks.nTotal
-            trialInfo,corrCount = trial.runTrial(win,taskCond,ti,total,corrCount=corrCount,isTrain=False)
+            ti_show = ((ti-1) % taskSessionLen)+1 
+            trialInfo,corrCount = trial.runTrial(win,taskCond,ti_show,total,corrCount=corrCount,isTrain=False)
 
             tasks.data.add('targets',trialInfo['targets'])
             tasks.data.add('response',trialInfo['response'])
@@ -184,8 +184,9 @@ if spaCond == 'all':
             
             exp.nextEntry()
 
-        tasks.saveAsText(fileName=taskDataFile,stimOut=['spaCond','tarDir','intCond'],dataOut=['targets_raw','response_raw','results_raw','corrCount_raw'])
-        tasks.saveAsPickle(fileName=taskDataFile)
+        taskDataFile_cond = taskDataFile + '_' + s
+        tasks.saveAsText(fileName=taskDataFile_cond,stimOut=['spaCond','tarDir','intCond'],dataOut=['targets_raw','response_raw','results_raw','corrCount_raw'])
+        tasks.saveAsPickle(fileName=taskDataFile_cond)
 
 else: # spaCond is one spaCond
 
@@ -220,7 +221,9 @@ else: # spaCond is one spaCond
 exp.saveAsPickle(fileName=expDataFile)
 exp.saveAsWideText(fileName=expDataFile)
 
+expInstructions.end_task(win)
+
 #port.close()
-sys.exit(0)
+sys.exit(0) # I don't remember what is this...
 
 

@@ -271,10 +271,19 @@ def playTrial(win,trialStim):
     
     # if use third channel for timing
     trig_chan = np.zeros((full_stream.shape[0],1))
-    trig_chan[0:200] = 1 # visual stimuli on
-    trig_chan[int(cue_ontset*fs):int(cue_ontset*fs)+200] = 0.5 # cue time
-    trig_chan[(onset_time*fs).astype(int)] = 0.5 # audio time
-    trig_chan[trig] = 1 # TODO: check this
+    trig_dur = 100
+    trig_chan[0:trig_dur] = 1 # visual stimuli on
+    trig_chan[int(cue_ontset*fs):int(cue_ontset*fs)+trig_dur] = 0.5 # cue time
+    #trig_chan[(onset_time*fs).astype(int)] = 0.5 # audio time
+    for ot in onset_time:
+        trig_chan[int(ot*fs):int(ot*fs)+trig_dur] = 0.5
+    
+    # condition code: using channel 3 is based on the assumption that at least the recorded onset time is accurate
+    trig_onset = 1000
+    trig_interval = 100
+    trig_s = int(trig_onset+trig*trig_interval)
+    trig_chan[trig_s:trig_s+trig_dur] = 1 # TODO: check this # 1=>1100:1200   2: 1200:1300, decode: (onset_time-1000)/100
+
     tar_chan = tar_stream[:,np.argmax(np.max(tar_stream,axis=0))].reshape(-1,1) 
     trig_chan = trig_chan + tar_chan
 
@@ -304,7 +313,7 @@ def playTrial(win,trialStim):
 
     cross = visual.TextStim(win=win,text='+',height=0.3)
     cross.draw() 
-    #win.callOnFlip(port.write,trig.to_bytes(1,'little')) # TODO: add more info? the target sequence and the response?
+    #win.callOnFlip(port.write,trig.to_bytes(1,'little')) 
     win.flip() 
 
 #    print("***********************************************************")
@@ -344,7 +353,7 @@ def randomStream():
 def fillStimNames(sylb,spaCond,tarDir,codei,intDir):
     sylbDir = getSylbDir(tarDir,codei,intDir)
     if codei == 'I':
-        file_name = '../stimuli/' + sylb + '_' + sylbDir + '_' + spaCond + '_5dB.wav' 
+        file_name = '../stimuli/' + sylb + '_' + sylbDir + '_' + spaCond + '_5db.wav' 
     else:
         file_name = '../stimuli/' + sylb + '_' + sylbDir + '_' + spaCond + '.wav'
     return file_name
@@ -382,7 +391,7 @@ def getSylbDir(tarDir,codei,intDir):
 
 def getTriggerCode(spaCond,intCond,tarDir): # TODO: check trigger code before we start
     spaCond_pool = ['HRTF','ITD','ILD']
-    intCond_pool = [None,'cont','ips'] 
+    intCond_pool = [None,'cont']  # ,'ips'
     tarDir_pool = ['30L','30R']
 
     code = spaCond_pool.index(spaCond)*len(intCond_pool)*len(tarDir_pool) + intCond_pool.index(intCond)*len(tarDir_pool) + tarDir_pool.index(tarDir)
@@ -392,7 +401,7 @@ def getTriggerCode(spaCond,intCond,tarDir): # TODO: check trigger code before we
 
 def test_getTriggerCode():
     spaCond_pool = ['HRTF','ITD','ILD']
-    intCond_pool = [None,'cont','ips'] 
+    intCond_pool = [None,'cont'] 
     tarDir_pool = ['30L','30R']
 
     for spaCond in spaCond_pool:
@@ -401,3 +410,5 @@ def test_getTriggerCode():
                 code = getTriggerCode(spaCond,intCond,tarDir)
                 print(spaCond,intCond,tarDir,code)
     return code 
+
+#test_getTriggerCode()
