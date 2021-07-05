@@ -5,4 +5,14 @@ TODO:
 3. make a document about what to modify before running in Chris' lab
 
 
+7.5 update
 
+* this list is written while reading through the code
+
+- 1. add session screen (for 3 spatial conditions) 
+- 2. add session screen in main (line 170)
+- 3. check maketrialdictlist (160 blocks ok? 80 normal, 40 left leading)
+[pilot by myself]
+4. how to test with less trials?
+5. check saved data, is that readable? do i need to make it easier to process?
+6. add more processing in this code? correct or not, errors?

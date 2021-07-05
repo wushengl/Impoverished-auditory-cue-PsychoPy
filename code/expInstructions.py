@@ -82,15 +82,46 @@ def task_Instruction(win,trialNum,taskBlockLen):
     win.flip()
     event.waitKeys(keyList=['space'])
 
+def task_Instruction_3spa(win,trialNum,taskBlockLen):
+
+    N = int(trialNum/taskBlockLen)
+
+    txt = 'Next you will start the task. There will be '+str(trialNum)+' trials in total,'\
+        ' divided into 3 sessions, each session has 4 blocks, each block has '+str(taskBlockLen)+' trials. \n\n'\
+        'Press Space to start the task Session.' 
+
+    txt = visual.TextStim(win, text=txt, alignText='left')
+    txt.draw()
+    win.flip()
+    event.waitKeys(keyList=['space'])
+
 def task_break(win,blocki):
 
     txt = 'You have finished block ' + str(blocki) + '! \n'\
         'Take a break if you need to. \n\n'\
-        'Press Space to start the task Session.'
+        'Press Space to continue.'
 
     txt = visual.TextStim(win, text=txt)
     txt.draw()
     win.flip()
     event.waitKeys(keyList=['space'])
 
+def start_session(win,sessioni):
 
+    txt = 'Now starting session ' + str(sessioni) + '. \n\n'\
+        'Press Space to start.'
+
+    txt = visual.TextStim(win, text=txt)
+    txt.draw()
+    win.flip()
+    event.waitKeys(keyList=['space'])
+
+def start_block(win,blocki):
+
+    txt = 'Now starting block ' + str(blocki) + '. \n\n'\
+        'Press Space to start.'
+
+    txt = visual.TextStim(win, text=txt)
+    txt.draw()
+    win.flip()
+    event.waitKeys(keyList=['space'])

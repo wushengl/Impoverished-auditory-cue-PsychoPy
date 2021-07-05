@@ -16,7 +16,7 @@ import medussa
 
 
 #pdb.set_trace()
-#device = medussa.open_device(16,16,16) # input device, ouput device, channel
+device = medussa.open_device(16,16,8) # input device, ouput device, channel
 
 
 '''
@@ -39,20 +39,25 @@ TODO:
 condition = ['cont','ips','both'] # interrupter condition
 spatialization = ['all','HRTF','ITD','ILD']
 
+
+ratio = 1/2
+trialNum = 480
+blockNum = 12
+taskBlockLen = int(trialNum/blockNum)
+taskSessionLen = 160 # 480/3
+
 expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=480,blockNum=10)
 expDataFile = '../data/ASAExp_' + expInfo['Subject'] + '/ASAExp_' + expInfo['Subject']
 trainDataFile = expDataFile + '_train'
 taskDataFile = expDataFile + '_task'
 expDataFile = expDataFile + '_exp'
 
-ratio = 1/2
 trialNum = expInfo['Trial Number']
 intCond = expInfo['Condition']
 spaCond = expInfo['Spatialization']
 
 trainNum = 6 
 trainThre = 4
-taskBlockLen = 40
 
 
 '''
@@ -135,16 +140,17 @@ training.saveAsPickle(fileName=trainDataFile)
 # 1. add a new instruction, have 3 sessions, each have 4 blocks, each 40 trials
 # 2. if spacondition = all, make trial dict list 3 times, each with different 
 
-expInstructions.task_Instruction(win,trialNum,taskBlockLen)
+expInstructions.task_Instruction_3spa(win,trialNum,taskBlockLen)
 
 
 if spaCond == 'all':
     spaCond_list = ['HRTF','ITD','ILD']
+    trialNum_cond = int(trialNum/len(spaCond_list))
 
     for s in spaCond_list:
 
         # make dict list
-        taskConds = makeTrialDictList.makeTrialDictList(spaCond=s,isTrain=False,trialNum=trialNum,interruptRatio=ratio,intDir=expInfo['Condition']) 
+        taskConds = makeTrialDictList.makeTrialDictList(spaCond=s,isTrain=False,trialNum=trialNum_cond,interruptRatio=ratio,intDir=expInfo['Condition']) 
         tasks = data.TrialHandler(trialList=taskConds, nReps=1, name='task_'+s, method='random') 
         exp.addLoop(tasks)
 
@@ -152,7 +158,16 @@ if spaCond == 'all':
 
         ti = 0
         corrCount = 0
+
         for taskCond in tasks: 
+
+            if ti % taskSessionLen == 0:
+                session_next = int(ti/taskSessionLen)+1
+                expInstructions.start_session(win,session_next)
+
+            if ti % taskBlockLen == 0:
+                block_next = int(ti/taskBlockLen)+1
+                expInstructions.start_block(win,block_next)
 
             ti += 1
             total = tasks.nTotal
