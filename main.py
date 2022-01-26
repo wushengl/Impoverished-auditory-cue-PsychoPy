@@ -34,7 +34,7 @@ ExtraInfo:
 condition = ['cont','ips','both'] # interrupter condition
 spatialization = ['all','HRTF','ITD','ILD']
 
-scr = 1
+scr = 0
 
 
 ratio = 1/2
@@ -55,7 +55,7 @@ spaCond = expInfo['Spatialization']
 subject = expInfo['Subject']
 
 trainNum = 6
-trainThre = 4
+trainThre = 4 # TODO
 
 
 '''
@@ -167,13 +167,22 @@ if spaCond == 'all':
 
         for taskCond in tasks: 
 
-            if ti % taskSessionLen == 0: # TODO: move "finish" message before showing the screen, not after proceeding the screen + print current ti
+            if ti % taskSessionLen == 0:
+                print('######################################')
+                print('STARTING NEW SESSION!')
+                print('######################################')
+                # pdb.set_trace()  # TODO: can I stop here and resume again? how would the task window behave?
                 session_next = int(ti/taskSessionLen)+1
                 expInstructions.start_session(win,session_next)
 
             if ti % taskBlockLen == 0:
+                print('==================')
+                print('STARTING NEW BLOCK!')
+                print('==================')
                 block_next = int(ti/taskBlockLen)+1
                 expInstructions.start_block(win,block_next)
+                
+            print('Current trial: ',ti)
 
             ti += 1
             total = tasks.nTotal

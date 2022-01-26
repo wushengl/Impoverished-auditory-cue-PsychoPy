@@ -9,7 +9,7 @@ def showGUI(condition,spatialization,trialNum=96,blockNum=2,scr=1):
 
     info = {'Condition':condition,
         'Spatialization':spatialization,
-        'Subject': 'p001',
+        'Subject': 'no_input',
         'Trial Number': trialNum,
         'Block Number': blockNum,
         'Screen Index': scr,

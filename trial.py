@@ -15,6 +15,10 @@ import psylab
 import arrow1 
 import pysndfile 
 
+#import sounddevice as sd 
+#sd.default.device = 16
+#sd.default.samplerate = 44100
+
 import matplotlib.pyplot as plt
 
 #devs = medussa.get_available_devices()
@@ -64,8 +68,10 @@ def runTrial(win,trialCond,ti,total,corrCount,isTrain=True):
     spaCond = trialCond['spaCond']
     tarDir = trialCond['tarDir']
     intCond = trialCond['intCond'] # this is None for training trial
-    
+
     trialInfo = generateTrial(trialCond,isTrain) 
+    trialInfo['subject'] = trialCond['subject']
+
     playTrial(win,trialInfo) 
     response = collectResponse(win,ti,total) 
     trialInfo['response'] = response
@@ -77,6 +83,7 @@ def runTrial(win,trialCond,ti,total,corrCount,isTrain=True):
         if np.sum(results) == 3:
             corrCount += 1
     
+
     trialInfo['results'] = results
     
     return trialInfo, corrCount
@@ -320,12 +327,16 @@ def playTrial(win,trialStim):
     # trig_chan = trig_chan + tar_chan
     # trig_chan = psylab.signal.atten(trig_chan, 64) # Positive values yield attenuation; negative = +gain
 
+    # TODO: uncomment this if use arrow1
     zero_paddings = np.zeros((full_stream.shape[0],9)) # set channel 3-11 to 0, trigger channel is SPDIF2
     trig_chan = np.concatenate((zero_paddings,trig_chan),axis=1)
     #trig_chan = np.tile(trig_chan,(1,18)) # TODO: I've been playing the trigger through all of the left 18 channels, but still not seeing any signal
 
 
     full_stream = np.concatenate((full_stream,trig_chan),axis=1)
+
+    # TODO why?
+    #full_stream = full_stream * 20
 
     
 
@@ -350,8 +361,13 @@ def playTrial(win,trialStim):
     output_ports = 'firewire_pcm:000a3500c8741572_pbk_analog-1_out,firewire_pcm:000a3500c8741572_pbk_analog-2_out,firewire_pcm:000a3500c8741572_pbk_SPDIF-1_out'
     #output_ports = 'firewire_pcm:000a3500c8741572_pbk_analog-1_out,firewire_pcm:000a3500c8741572_pbk_analog-2_out,firewire_pcm:000a3500c8741572_pbk_analog-3_out'
     
-    print(full_stream.shape)
+    #print(np.max(full_stream[:,0]))
+    #print(np.max(full_stream[:,1]))
+
+    # TODO: uncomment arrow1 if using this
     arrow1.play_rec(full_stream, fs=fs) #, output_ports=output_ports, duration_secs=6
+
+#    sd.play(full_stream, mapping=[1,2,3]) # samplerate = 44100, mapping=[1,2,12]
     # TODO: set channels to play audio and trig (which is ADAT output 1?)
     '''
     # play one-by-one
