@@ -87,7 +87,7 @@ def task_Instruction_3spa(win,trialNum,taskBlockLen):
     N = int(trialNum/taskBlockLen)
 
     txt = 'Next you will start the task. There will be '+str(trialNum)+' trials in total,'\
-        ' divided into '+str(N)+' blocks, each block has '+str(taskBlockLen)+' trials. \n\n'\
+        ' divided into 3 sessions, each session has 4 blocks, each block has '+str(taskBlockLen)+' trials. \n\n'\
         'Press Space to start the task Session.' 
 
     txt = visual.TextStim(win, text=txt, alignText='left')
@@ -135,15 +135,3 @@ def end_task(win):
     txt.draw()
     win.flip()
     event.waitKeys(keyList=['space'])
-
-
-def session_break(win, blocki):
-
-    txt = 'Congratulations for finishing ' + str(blocki) + ' blocks! Please wait for the lab member to check the device and your cap. \n\n'\
-        'When the checking is finished, press Space to continue.'
-
-    txt = visual.TextStim(win, text=txt)
-    txt.draw()
-    win.flip()
-    event.waitKeys(keyList=['space'])
-    

@@ -52,27 +52,7 @@ def makeTrialDictList(spaCond='HRTF',isTrain=False,trialNum=96,interruptRatio=1/
 
             condList = int_L + int_R + norm_L + norm_R
     
-    pdb.set_trace()
     return condList
 
 
-def makeTrialDictList2(trialNum,ratio=1/4,intDir='cont'):
-
-    intNum = int(trialNum*ratio)
-    normNum = trialNum - intNum
-
-    hrtf_int_L = [{'spaCond':'HRTF', 'tarDir':'30L', 'intCond':intDir}]*int(intNum/2)
-    hrtf_int_R = [{'spaCond':'HRTF', 'tarDir':'30R', 'intCond':intDir}]*int(intNum/2)
-    ild_int_L = [{'spaCond':'ILD', 'tarDir':'30L', 'intCond':intDir}]*int(intNum/2)
-    ild_int_R = [{'spaCond':'ILD', 'tarDir':'30R', 'intCond':intDir}]*int(intNum/2)
-    itd_int_L = [{'spaCond':'ITD', 'tarDir':'30L', 'intCond':intDir}]*int(intNum/2)
-    itd_int_R = [{'spaCond':'ITD', 'tarDir':'30R', 'intCond':intDir}]*int(intNum/2)
-
-    condList = hrtf_int_L + hrtf_int_R + ild_int_L + ild_int_R + itd_int_L + ild_int_R
-
-    return condList
-
-
-
-makeTrialDictList(isTrain=False)
-#makeTrialDictList(trialNum=96)
+#makeTrialDictList(isTrain=True)

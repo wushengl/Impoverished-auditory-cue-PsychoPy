@@ -34,20 +34,19 @@ ExtraInfo:
 condition = ['cont','ips','both'] # interrupter condition
 spatialization = ['all','HRTF','ITD','ILD']
 
-scr = 0
+scr = 1
 
 
-# test with 12,12,4
-ratio = 1/4 # 1/2 
-trialNum = 960 # 480 #12 # 480 # 40 * 2 tarDir * 3 spaCond * 4 uninterrupted = 960
-blockNum = 12 # each condition break into 4 blocks (80 trials)
-taskBlockLen = int(trialNum/blockNum) 
-taskSessionLen = 160 #4 # 480/3 = 160 # TODO remove this? no sessions, could change to "wait for observor to check" screen
+ratio = 1/2 # TODO
+trialNum = 480 #12 # 480 # test with 12,12,4
+blockNum = 12 
+taskBlockLen = int(trialNum/blockNum)
+taskSessionLen = 160 #4 # 480/3 = 160
 
-expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=trialNum,blockNum=blockNum,scr=scr) 
+expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=trialNum,blockNum=blockNum,scr=scr)
 expDataFile = '../data/ASAExp_' + expInfo['Subject'] + '/ASAExp_' + expInfo['Subject']
-trainDataFile = expDataFile + '_train' # TODO: remove?
-taskDataFile = expDataFile + '_task' # TODO: remove?
+trainDataFile = expDataFile + '_train'
+taskDataFile = expDataFile + '_task'
 expDataFile = expDataFile + '_exp'
 
 trialNum = expInfo['Trial Number']
@@ -56,7 +55,7 @@ spaCond = expInfo['Spatialization']
 subject = expInfo['Subject']
 
 trainNum = 6
-trainThre = 4 # TODO
+trainThre = 4
 
 
 '''
@@ -168,22 +167,13 @@ if spaCond == 'all':
 
         for taskCond in tasks: 
 
-            if ti % taskSessionLen == 0:
-                print('######################################')
-                print('STARTING NEW SESSION!')
-                print('######################################')
-                # pdb.set_trace()  # TODO: can I stop here and resume again? how would the task window behave?
+            if ti % taskSessionLen == 0: # TODO: move "finish" message before showing the screen, not after proceeding the screen + print current ti
                 session_next = int(ti/taskSessionLen)+1
                 expInstructions.start_session(win,session_next)
 
             if ti % taskBlockLen == 0:
-                print('==================')
-                print('STARTING NEW BLOCK!')
-                print('==================')
                 block_next = int(ti/taskBlockLen)+1
                 expInstructions.start_block(win,block_next)
-                
-            print('Current trial: ',ti)
 
             ti += 1
             total = tasks.nTotal
@@ -218,7 +208,7 @@ if spaCond == 'all':
         #tasks.saveAsText(fileName=taskDataFile_cond,stimOut=['spaCond','tarDir','intCond'],dataOut=['targets_raw','response_raw','results_raw','corrCount_raw']) 
         #tasks.saveAsPickle(fileName=taskDataFile_cond) 
 
-else: # spaCond is one spaCond # TODO: haven't updated this for a long time
+else: # spaCond is one spaCond
 
     taskConds = makeTrialDictList.makeTrialDictList(spaCond=spaCond,isTrain=False,trialNum=trialNum,interruptRatio=ratio,intDir=expInfo['Condition']) 
     tasks = data.TrialHandler(trialList=taskConds, nReps=1, name='task', method='random') 
@@ -259,9 +249,7 @@ else: # spaCond is one spaCond # TODO: haven't updated this for a long time
 
 # here save the data for the whole exp just to be safe, normally I'll still use the customized pandas dataframe for data analysis
 exp.saveAsWideText(fileName=expDataFile,delim=',') # when setting delim to be ',', the default extention is '.csv', or the default will be '.tsv'
-# I'm actually having 2 saved files each time I run this, one is overwriting, one is saved with a slightly different name
-# the overwriting one is the one I saved at the end of the task
-# the slightly different named one is saved automatically by the handler 
+
 
 expInstructions.end_task(win)
 

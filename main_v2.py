@@ -6,6 +6,8 @@ import expInstructions
 import makeTrialDictList
 import trial
 
+import random
+
 import pdb
 
 import serial
@@ -37,12 +39,14 @@ spatialization = ['all','HRTF','ITD','ILD']
 scr = 0
 
 
-# test with 12,12,4
+# test with 12 trials,12 blocks (4 sessions, 1 trial per block)
+
 ratio = 1/4 # 1/2 
 trialNum = 960 # 480 #12 # 480 # 40 * 2 tarDir * 3 spaCond * 4 uninterrupted = 960
 blockNum = 12 # each condition break into 4 blocks (80 trials)
+sessionNum = blockNum/3 # each session contains a repeat of all of 3 conditions 
 taskBlockLen = int(trialNum/blockNum) 
-taskSessionLen = 160 #4 # 480/3 = 160 # TODO remove this? no sessions, could change to "wait for observor to check" screen
+taskSessionLen = int(trialNum/sessionNum) #4 # 480/3 = 160 # TODO remove this? no sessions, could change to "wait for observor to check" screen
 
 expInfo = expInfoGUI.showGUI(condition,spatialization,trialNum=trialNum,blockNum=blockNum,scr=scr) 
 expDataFile = '../data/ASAExp_' + expInfo['Subject'] + '/ASAExp_' + expInfo['Subject']
@@ -122,7 +126,7 @@ while corrCount < trainThre:
 
         ti += 1 
         total = training.nTotal
-        trialCond['subject'] = subject # TODO debug
+        trialCond['subject'] = subject 
         trialInfo,corrCount = trial.runTrial(win,trialCond,ti,total,corrCount,isTrain=True)
 
         # addData to trial handler would automatically add to exp handler, since this trial handler is "attached to" the exp handler
@@ -146,42 +150,49 @@ while corrCount < trainThre:
 #####################################################
 
 
+# TODO: test in lab
+
+
 expInstructions.task_Instruction_3spa(win,trialNum,taskBlockLen)
 
 
-if spaCond == 'all':
-    spaCond_list = ['HRTF','ITD','ILD']
-    trialNum_cond = int(trialNum/len(spaCond_list))
+spaCond_list = ['HRTF','ITD','ILD']
 
-    ti = 0
-    corrCount = 0
+
+ti = 0
+
+for i in range(sessionNum):
+
+
+    #session_next = int(ti/taskSessionLen)+1
+    #expInstructions.start_session(win,session_next) # check text on this screen, no need for session number, just say take a break something 
+
+
+    random.shuffle(spaCond_list)
 
     for s in spaCond_list:
 
-        # make dict list
-        taskConds = makeTrialDictList.makeTrialDictList(spaCond=s,isTrain=False,trialNum=trialNum_cond,interruptRatio=ratio,intDir=expInfo['Condition']) # TODO
-        tasks = data.TrialHandler(trialList=taskConds, nReps=1, name='task_'+s, method='random') # condition in taskConds are automatically saved into exp
+        taskConds = makeTrialDictList.makeTrialDictList(spaCond=s, isTrain=False, trialNum=taskBlockLen, interruptRatio=ratio, intDir=expInfo['Condition'])
+        tasks = data.TrialHandler(trialList=taskConds, nReps=1, name='task_'+s+str(i+1), method='random') 
         
+        # NOTE for TrialHandler:
+
+        # trial handler is not good at handling non-equal (counterbalanced) condition splits, and my interrupted trials is not as much as uninterrupted, so what I'm doing now
+        # is the best solution for this specific experiment 
+
+        # currently taking each row as a "condition" but actually I already have the repeats in the list, the handler will take each row as a new condition and shuffle all those
+        # and the task_HRTF.thisRepN those columns are from task handler, task_HRTF is the task name, rep is info about repeat and random feature. I didn't use that so ignore.
+
         exp.addLoop(tasks)
 
-        # trial handler
-
         for taskCond in tasks: 
-
-            if ti % taskSessionLen == 0:
-                print('######################################')
-                print('STARTING NEW SESSION!')
-                print('######################################')
-                # pdb.set_trace()  # TODO: can I stop here and resume again? how would the task window behave?
-                session_next = int(ti/taskSessionLen)+1
-                expInstructions.start_session(win,session_next)
 
             if ti % taskBlockLen == 0:
                 print('==================')
                 print('STARTING NEW BLOCK!')
                 print('==================')
                 block_next = int(ti/taskBlockLen)+1
-                expInstructions.start_block(win,block_next)
+                expInstructions.start_block(win,block_next) 
                 
             print('Current trial: ',ti)
 
@@ -189,6 +200,8 @@ if spaCond == 'all':
             total = tasks.nTotal
             ti_show = ((ti-1) % taskSessionLen)+1 
             taskCond['subject'] = subject
+
+            # run trial here
             trialInfo,corrCount = trial.runTrial(win,taskCond,ti_show,total,corrCount=corrCount,isTrain=False) 
 
             tasks.addData('targets',trialInfo['targets'])
@@ -210,55 +223,18 @@ if spaCond == 'all':
 
             if ti % taskBlockLen == 0:
                 blocki = int(ti/taskBlockLen)
-                expInstructions.task_break(win,blocki)
+                expInstructions.task_break(win,blocki) 
             
             exp.nextEntry()
 
-        #taskDataFile_cond = taskDataFile + '_' + s
-        #tasks.saveAsText(fileName=taskDataFile_cond,stimOut=['spaCond','tarDir','intCond'],dataOut=['targets_raw','response_raw','results_raw','corrCount_raw']) 
-        #tasks.saveAsPickle(fileName=taskDataFile_cond) 
 
-else: # spaCond is one spaCond # TODO: haven't updated this for a long time
-
-    taskConds = makeTrialDictList.makeTrialDictList(spaCond=spaCond,isTrain=False,trialNum=trialNum,interruptRatio=ratio,intDir=expInfo['Condition']) 
-    tasks = data.TrialHandler(trialList=taskConds, nReps=1, name='task', method='random') 
-    exp.addLoop(tasks)
-
-    ti = 0
-    corrCount = 0
-    for taskCond in tasks: 
-
-        ti += 1
-        total = tasks.nTotal
-        trialInfo,corrCount = trial.runTrial(win,taskCond,ti,total,corrCount=corrCount,isTrain=False)
-
-        tasks.addData('targets',trialInfo['targets'])
-        tasks.addData('response',trialInfo['response'])
-        tasks.addData('results',trialInfo['results'])
-        tasks.addData('corrCount',corrCount)
-
-        tasks.addData('T1', trialInfo['targets'][0])
-        tasks.addData('T2', trialInfo['targets'][1])
-        tasks.addData('T3', trialInfo['targets'][2])
-        tasks.addData('R1', trialInfo['response'][0])
-        tasks.addData('R2', trialInfo['response'][1])
-        tasks.addData('R3', trialInfo['response'][2])
-        tasks.addData('S1', trialInfo['results'][0]) # S stands for score, results is an array
-        tasks.addData('S2', trialInfo['results'][1])
-        tasks.addData('S3', trialInfo['results'][2])
-
-        if ti % taskBlockLen == 0:
-            blocki = int(ti/taskBlockLen)
-            expInstructions.task_break(win,blocki)
-        
-        exp.nextEntry()
-
-    #tasks.saveAsText(fileName=taskDataFile,stimOut=['spaCond','tarDir','intCond'],dataOut=['targets_raw','response_raw','results_raw','corrCount_raw']) 
-    #tasks.saveAsPickle(fileName=taskDataFile) 
+    if i != (sessionNum-1):
+        expInstructions.session_break(win,blocki)
 
 
-# here save the data for the whole exp just to be safe, normally I'll still use the customized pandas dataframe for data analysis
+
 exp.saveAsWideText(fileName=expDataFile,delim=',') # when setting delim to be ',', the default extention is '.csv', or the default will be '.tsv'
+
 # I'm actually having 2 saved files each time I run this, one is overwriting, one is saved with a slightly different name
 # the overwriting one is the one I saved at the end of the task
 # the slightly different named one is saved automatically by the handler 
