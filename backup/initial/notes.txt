@@ -1,0 +1,6 @@
+Something could be used later:
+
+1. demo global_event_keys: create global keys for quiting, moveon stuffs
+
+
+
